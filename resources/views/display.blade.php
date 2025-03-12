@@ -46,30 +46,45 @@
             </div>
             <div class="col">
                 <div class="card h-100 shadow-sm p-2">
-                    <div class="card-body">
-                        <div class="row mb-3">
-                            <div class="col text-start">
-                                <span>สถานะการทำงาน</span>
+                    <div class="card-body bg-primary border rounded mb-3">
+                        <div class="text-strat">
+                            <div class="fw-bold text-light fs-5">
+                                <i class="bi bi-calendar3 text-light"></i> <span id="current-date"></span>
                             </div>
-                            <div class="col text-end">
-                                <span>กำลังทำงาน</span>
-                            </div>
-                        </div>
-                        <div class="row mb-4">
-                            <div class="col text-start">
-                                <label class="form-label mb-0">เปิดปิดการทำงาน</label>
-                            </div>
-                            <div class="col text-end">
-                                <div class="form-check form-switch d-inline-block">
-                                    <input class="form-check-input" type="checkbox" role="switch"
-                                        id="flexSwitchCheckChecked" checked>
-                                </div>
+                            <div class="fw-bold fs-4 text-light">
+                                <i class="bi bi-clock text-light"></i> <span id="current-time"></span>
                             </div>
                         </div>
-                        <div class="d-grid gap-2">
-                            <a href="{{ route('history') }}" type="button" class="btn btn-primary">ข้อมูลย้อนหลัง</a>
-                            <a href="{{ route('setting') }}" type="button" class="btn btn-primary">การตั้งค่า</a>
+                    </div>
+                    <div class="row mb-2">
+                        <div class="col text-start">
+                            <span>สถานะการทำงาน</span>
                         </div>
+                        <div class="col text-end">
+                            <span>กำลังทำงาน</span>
+                        </div>
+                    </div>
+                    <div class="row mb-2">
+                        <div class="col text-start">
+                            <label class="form-label mb-0">เปิดปิดการทำงาน</label>
+                        </div>
+                        <div class="col text-end">
+                            <div class="form-check form-switch d-inline-block">
+                                <input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckChecked"
+                                    checked>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="d-flex justify-content-center align-items-center mb-3">
+                        <button type="button" class="btn btn-outline-primary time-btn mx-2" data-hours="1">1 ชม.</button>
+                        <button type="button" class="btn btn-outline-primary time-btn mx-2" data-hours="6">6 ชม.</button>
+                        <button type="button" class="btn btn-outline-primary time-btn mx-2" data-hours="12">12 ชม.</button>
+                        <button type="button" class="btn btn-outline-primary time-btn active mx-2" data-hours="24">24
+                            ชม.</button>
+                    </div>
+                    <div class="d-grid gap-2">
+                        <a href="{{ route('history') }}" type="button" class="btn btn-primary">ข้อมูลย้อนหลัง</a>
+                        <a href="{{ route('setting') }}" type="button" class="btn btn-primary">การตั้งค่า</a>
                     </div>
                 </div>
             </div>
@@ -118,6 +133,34 @@
     </div>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
+        //นาฬิกา
+        function updateDateTime() {
+            const now = new Date();
+
+            // แสดงวันที่ในรูปแบบ วัน เดือน ปี (ภาษาไทย)
+            const dateOptions = {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+                weekday: 'long'
+            };
+            const dateString = now.toLocaleDateString('th-TH', dateOptions);
+
+            // แสดงเวลาปัจจุบัน
+            const timeString = now.toLocaleTimeString('th-TH', {
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit'
+            });
+
+            document.getElementById('current-date').textContent = dateString;
+            document.getElementById('current-time').textContent = timeString;
+        }
+
+        setInterval(updateDateTime, 1000);
+        updateDateTime();
+
+        // กราฟ
         async function fetchData() {
             const response = await fetch('/get-esp32-data');
             const data = await response.json();
@@ -133,16 +176,17 @@
             const lightIntensities = data.map(item => item.LightIntensity);
             const weights = data.map(item => item.weight);
 
-            updateChart(tempChart, labels, temperatures);
-            updateChart(humidityChart, labels, humidities);
-            updateChart(lightChart, labels, lightIntensities);
-            updateChart(weightChart, labels, weights);
+            updateChart(tempChart, [...labels].reverse(), [...temperatures].reverse()); // กลับลำดับ
+            updateChart(humidityChart, labels, humidities); // ไม่กลับลำดับ
+            updateChart(lightChart, [...labels].reverse(), [...lightIntensities].reverse()); // กลับลำดับ
+            updateChart(weightChart, labels, weights); // ไม่กลับลำดับ
             updateAllStatusChart(labels, temperatures, humidities, lightIntensities, weights);
+
         }
 
         function updateChart(chart, labels, data) {
-            chart.data.labels = labels.reverse();
-            chart.data.datasets[0].data = data.reverse();
+            chart.data.labels = labels;
+            chart.data.datasets[0].data = data;
             chart.update();
         }
 

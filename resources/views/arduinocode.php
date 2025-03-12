@@ -78,7 +78,7 @@ void loop() {
         tempData[sampleIndex] = avgTemperature;
         humData[sampleIndex] = avgHumidity;
 
-        sampleIndex++;
+        sampleIndex++;  
 
         Serial.print("เก็บค่าครั้งที่: ");
         Serial.println(sampleIndex);
