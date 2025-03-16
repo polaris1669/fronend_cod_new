@@ -48,6 +48,15 @@ Route::get('/esp32-data', function () {
     $data = Esp32Data::latest()->take(10)->get(); // ดึงข้อมูล 10 รายการล่าสุด
     return view('esp32-data', ['data' => $data]);
 })->name('esp32-data');
+//------------------------------------- CSV controller -------------------------------------
+
+use App\Http\Controllers\CSVExportController;
+
+Route::get('/download-csv', function () {
+    return app(App\Http\Controllers\CSVExportController::class)->downloadCSV();
+})->name('download.csv');
+
+
 
 //---------------------------------------------- สำรองโค้ดไว้เฉยๆ--------------------------------------------
 
